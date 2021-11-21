@@ -28,7 +28,8 @@ const _ = grpc_go.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GoodsServiceClient interface {
-	CreateGoodsItem(ctx context.Context, in *CreateGoodsItemRequest, opts ...grpc_go.CallOption) (*CreateGoodsItemResponse, common.ErrorWithAttachment)
+	CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc_go.CallOption) (*CreateItemResponse, common.ErrorWithAttachment)
+	GetItemDetail(ctx context.Context, in *GetItemDetailRequest, opts ...grpc_go.CallOption) (*GetItemDetailResponse, common.ErrorWithAttachment)
 }
 
 type goodsServiceClient struct {
@@ -36,7 +37,8 @@ type goodsServiceClient struct {
 }
 
 type GoodsServiceClientImpl struct {
-	CreateGoodsItem func(ctx context.Context, in *CreateGoodsItemRequest) (*CreateGoodsItemResponse, error)
+	CreateItem    func(ctx context.Context, in *CreateItemRequest) (*CreateItemResponse, error)
+	GetItemDetail func(ctx context.Context, in *GetItemDetailRequest) (*GetItemDetailResponse, error)
 }
 
 func (c *GoodsServiceClientImpl) GetDubboStub(cc *triple.TripleConn) GoodsServiceClient {
@@ -51,17 +53,24 @@ func NewGoodsServiceClient(cc *triple.TripleConn) GoodsServiceClient {
 	return &goodsServiceClient{cc}
 }
 
-func (c *goodsServiceClient) CreateGoodsItem(ctx context.Context, in *CreateGoodsItemRequest, opts ...grpc_go.CallOption) (*CreateGoodsItemResponse, common.ErrorWithAttachment) {
-	out := new(CreateGoodsItemResponse)
+func (c *goodsServiceClient) CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc_go.CallOption) (*CreateItemResponse, common.ErrorWithAttachment) {
+	out := new(CreateItemResponse)
 	interfaceKey := ctx.Value(constant.InterfaceKey).(string)
-	return out, c.cc.Invoke(ctx, "/"+interfaceKey+"/CreateGoodsItem", in, out)
+	return out, c.cc.Invoke(ctx, "/"+interfaceKey+"/CreateItem", in, out)
+}
+
+func (c *goodsServiceClient) GetItemDetail(ctx context.Context, in *GetItemDetailRequest, opts ...grpc_go.CallOption) (*GetItemDetailResponse, common.ErrorWithAttachment) {
+	out := new(GetItemDetailResponse)
+	interfaceKey := ctx.Value(constant.InterfaceKey).(string)
+	return out, c.cc.Invoke(ctx, "/"+interfaceKey+"/GetItemDetail", in, out)
 }
 
 // GoodsServiceServer is the server API for GoodsService service.
 // All implementations must embed UnimplementedGoodsServiceServer
 // for forward compatibility
 type GoodsServiceServer interface {
-	CreateGoodsItem(context.Context, *CreateGoodsItemRequest) (*CreateGoodsItemResponse, error)
+	CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponse, error)
+	GetItemDetail(context.Context, *GetItemDetailRequest) (*GetItemDetailResponse, error)
 	mustEmbedUnimplementedGoodsServiceServer()
 }
 
@@ -70,8 +79,11 @@ type UnimplementedGoodsServiceServer struct {
 	proxyImpl protocol.Invoker
 }
 
-func (UnimplementedGoodsServiceServer) CreateGoodsItem(context.Context, *CreateGoodsItemRequest) (*CreateGoodsItemResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateGoodsItem not implemented")
+func (UnimplementedGoodsServiceServer) CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateItem not implemented")
+}
+func (UnimplementedGoodsServiceServer) GetItemDetail(context.Context, *GetItemDetailRequest) (*GetItemDetailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetItemDetail not implemented")
 }
 func (s *UnimplementedGoodsServiceServer) XXX_SetProxyImpl(impl protocol.Invoker) {
 	s.proxyImpl = impl
@@ -101,8 +113,8 @@ func RegisterGoodsServiceServer(s grpc_go.ServiceRegistrar, srv GoodsServiceServ
 	s.RegisterService(&GoodsService_ServiceDesc, srv)
 }
 
-func _GoodsService_CreateGoodsItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc_go.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateGoodsItemRequest)
+func _GoodsService_CreateItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc_go.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateItemRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -114,7 +126,36 @@ func _GoodsService_CreateGoodsItem_Handler(srv interface{}, ctx context.Context,
 	for k, v := range md {
 		invAttachment[k] = v
 	}
-	invo := invocation.NewRPCInvocation("CreateGoodsItem", args, invAttachment)
+	invo := invocation.NewRPCInvocation("CreateItem", args, invAttachment)
+	if interceptor == nil {
+		result := base.XXX_GetProxyImpl().Invoke(ctx, invo)
+		return result, result.Error()
+	}
+	info := &grpc_go.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ctx.Value("XXX_TRIPLE_GO_INTERFACE_NAME").(string),
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		result := base.XXX_GetProxyImpl().Invoke(ctx, invo)
+		return result, result.Error()
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GoodsService_GetItemDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc_go.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetItemDetailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	base := srv.(dubbo3.Dubbo3GrpcService)
+	args := []interface{}{}
+	args = append(args, in)
+	md, _ := metadata.FromIncomingContext(ctx)
+	invAttachment := make(map[string]interface{}, len(md))
+	for k, v := range md {
+		invAttachment[k] = v
+	}
+	invo := invocation.NewRPCInvocation("GetItemDetail", args, invAttachment)
 	if interceptor == nil {
 		result := base.XXX_GetProxyImpl().Invoke(ctx, invo)
 		return result, result.Error()
@@ -138,8 +179,12 @@ var GoodsService_ServiceDesc = grpc_go.ServiceDesc{
 	HandlerType: (*GoodsServiceServer)(nil),
 	Methods: []grpc_go.MethodDesc{
 		{
-			MethodName: "CreateGoodsItem",
-			Handler:    _GoodsService_CreateGoodsItem_Handler,
+			MethodName: "CreateItem",
+			Handler:    _GoodsService_CreateItem_Handler,
+		},
+		{
+			MethodName: "GetItemDetail",
+			Handler:    _GoodsService_GetItemDetail_Handler,
 		},
 	},
 	Streams:  []grpc_go.StreamDesc{},
