@@ -1,0 +1,20 @@
+dubbo:
+  registries:
+    etcd:
+      protocol: zookeeper
+      address: xxx:2181
+  protocols:
+    triple:
+      name: tri
+      port: 20000
+  provider:
+    services:
+      GoodsService:
+        interface: com.jeongen.fastmall.goods.GoodsService
+
+  application:
+    version: 0.0.1
+  metrics:
+    enable: true # default is true
+    path: /metrics # default is /metrics
+    port: 9090 # default is 9090
