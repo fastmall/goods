@@ -2,15 +2,12 @@ package main
 
 import (
 	"dubbo.apache.org/dubbo-go/v3/common/logger"
-	_ "dubbo.apache.org/dubbo-go/v3/imports"
 	"fmt"
 	"github.com/fastmall/goods/dubbo"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	_ "github.com/dubbogo/triple/pkg/triple"
 )
 
 var (
